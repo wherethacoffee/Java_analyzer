@@ -1,0 +1,95 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal Linea, Comillas, T_dato, Parentesis_a, Parentesis_c, Diagonal, Llave_a,
+         Llave_c, Main, Dos_puntos, Dd_puntos, Coma, P_coma, Op_logico, P_reservada,
+         Identificador, Numero, ERROR;
+
+non terminal INICIO, PROGRAMAMAIN, BLOQUE, LISTAVARIABLES, LISTAPARAMS, LLAMADAFUNCION, EXPRBOOL,
+             CONDICIONALIF, CONDICIONALELSEIF, CONDICIONALELSE, INSTRUCCIONES, WHILEIF,
+             CICLO, DECLARACIONVAR, DECLARACIONPARAM, DECLARACIONRETURN, DECLARACIONFUNCION;
+
+start with INICIO;
+
+INICIO ::= 
+    DECLARACIONVAR DECLARACIONFUNCION PROGRAMAMAIN
+;
+PROGRAMAMAIN ::=
+    Diagonal P_reservada Dos_puntos P_reservada BLOQUE P_reservada
+;
+BLOQUE ::=
+    BLOQUE LLAMADAFUNCION |
+    LLAMADAFUNCION |
+    BLOQUE CONDICIONALIF |
+    CONDICIONALIF | 
+    BLOQUE CONDICIONALELSEIF |
+    CONDICIONALELSEIF |
+    BLOQUE CONDICIONALELSE |
+    CONDICIONALELSE |
+    BLOQUE INSTRUCCIONES |
+    INSTRUCCIONES
+;
+LISTAVARIABLES ::=
+    Identificador Coma LISTAVARIABLES | Identificador
+;
+DECLARACIONVAR ::=
+    Dos_puntos P_reservada Dos_puntos Llave_a T_dato LISTAVARIABLES Dd_puntos Llave_c
+;
+LISTAPARAMS ::=
+    Identificador Coma LISTAVARIABLES 
+   | Numero Coma LISTAVARIABLES
+   | Numero Coma Numero
+   | Numero 
+   | Identificador 
+;
+DECLARACIONPARAM ::=
+    Parentesis_a LISTAPARAMS Parentesis_c
+;
+DECLARACIONRETURN ::=
+    P_reservada LISTAPARAMS P_coma
+;
+DECLARACIONFUNCION ::=
+    T_dato Identificador DECLARACIONPARAM Llave_a BLOQUE DECLARACIONRETURN Llave_c
+;
+LLAMADAFUNCION ::=
+    P_reservada DECLARACIONPARAM
+;
+EXPRBOOL ::=
+    Identificador Op_logico Identificador 
+   | Numero Op_logico Identificador
+   | Identificador Op_logico Numero
+   | Numero Op_logico Numero
+;
+CONDICIONALIF ::=
+    P_reservada Parentesis_a EXPRBOOL Parentesis_c
+;
+CONDICIONALELSEIF ::=
+    P_reservada Parentesis_a EXPRBOOL Parentesis_c Llave_a BLOQUE Llave_c
+;
+CONDICIONALELSE ::=
+    P_reservada Llave_a BLOQUE Llave_c
+;
+INSTRUCCIONES ::=
+    Identificador Op_logico LLAMADAFUNCION
+    | WHILEIF
+;
+WHILEIF ::=
+    P_reservada CONDICIONALIF Llave_a BLOQUE Llave_c
+;
+CICLO ::=
+    P_reservada Llave_a BLOQUE Llave_c CONDICIONALIF
+;
